@@ -18,7 +18,16 @@ class BookSearch extends Book
     {
         return [
             [['id', 'user_id'], 'integer'],
-            [['title', 'description', 'genre', 'tag'], 'safe'],
+            [
+                [
+                    'title',
+                    'description',
+                    'genre',
+                    'tag',
+                    'author_id',
+                ],
+                'safe'
+            ],
         ];
     }
 
@@ -40,7 +49,8 @@ class BookSearch extends Book
      */
     public function search($params)
     {
-        $query = Book::find();
+        $query = Book::find()
+            ->alias('b');
 
         // add conditions that should always apply here
 
@@ -48,6 +58,7 @@ class BookSearch extends Book
             'query' => $query,
         ]);
 
+        $this->load($params);
         $this->load($params, '');
 
         if (!$this->validate()) {
@@ -58,14 +69,22 @@ class BookSearch extends Book
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'user_id' => $this->user_id,
+            'b.id' => $this->id,
+            'b.user_id' => $this->user_id,
         ]);
 
-        $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'description', $this->description])
-            ->andFilterWhere(['like', 'genre', $this->genre])
-            ->andFilterWhere(['like', 'tag', $this->tag]);
+        if (!empty($this->author_id)) {
+            $query->innerJoin(['atb' => AuthorToBook::tableName()], [
+                'AND',
+                'b.id = atb.book_id',
+                ['atb.author_id' => $this->author_id],
+            ]);
+        }
+
+        $query->andFilterWhere(['like', 'b.title', $this->title])
+            ->andFilterWhere(['like', 'b.description', $this->description])
+            ->andFilterWhere(['like', 'b.genre', $this->genre])
+            ->andFilterWhere(['like', 'b.tag', $this->tag]);
 
         return $dataProvider;
     }

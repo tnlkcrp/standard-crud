@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Author;
 use app\models\Book;
 use app\models\User;
 use kartik\select2\Select2;
@@ -31,9 +32,31 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
             'title',
-            'description:ntext',
+            [
+                'attribute' => 'author_id',
+                'value' => function (Book $book) {
+                    return Html::encode($book->getAuthorsString());
+                },
+                'filter' => Select2::widget([
+                    'name' => 'author_id',
+                    'data' => ArrayHelper::map(
+                        Author::find()->asArray()->all(),
+                        'id',
+                        'name'
+                    ),
+                    'value' => $searchModel->author_id,
+                    'options' => [
+                        'class' => 'form-control',
+                        'placeholder' => 'Author',
+                    ],
+                    'pluginOptions' => [
+                        'allowClear' => true,
+                        'selectOnClose' => true,
+                    ]
+                ])
+            ],
+            'genre',
             [
                 'attribute' => 'user_id',
                 'value' => function (Book $book) {
@@ -57,9 +80,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     ]
                 ])
             ],
-            'genre',
-            //'tag',
-
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

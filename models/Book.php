@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "books".
  *
@@ -19,6 +21,11 @@ namespace app\models;
 class Book extends \yii\db\ActiveRecord
 {
     /**
+     * @var array
+     */
+    public $author_id = [];
+
+    /**
      * {@inheritdoc}
      */
     public static function tableName()
@@ -32,7 +39,10 @@ class Book extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description', 'genre', 'user_id'], 'required'],
+            [
+                ['title', 'description', 'genre', 'user_id', 'author_id'],
+                'required',
+            ],
             [['description'], 'string'],
             [['user_id'], 'integer'],
             [['title', 'genre', 'tag'], 'string', 'max' => 255],
@@ -44,7 +54,16 @@ class Book extends \yii\db\ActiveRecord
                 'targetClass' => User::class,
                 'targetAttribute' => ['user_id' => 'id']
             ],
+            ['author_id', 'each', 'rule' => ['integer']]
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function attributes()
+    {
+        return array_merge(parent::attributes(), ['author_id']);
     }
 
     /**
@@ -56,9 +75,10 @@ class Book extends \yii\db\ActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'description' => 'Description',
-            'user_id' => 'User ID',
+            'user_id' => 'Created By',
             'genre' => 'Genre',
             'tag' => 'Tag',
+            'author_id' => 'Author'
         ];
     }
 
@@ -76,7 +96,7 @@ class Book extends \yii\db\ActiveRecord
     public function getAuthors()
     {
         return $this->hasMany(Author::class, ['id' => 'author_id'])
-            ->viaTable(AuthorToBook::class, ['book_id' => 'id']);
+            ->viaTable(AuthorToBook::tableName(), ['book_id' => 'id']);
     }
 
     /**
@@ -85,5 +105,17 @@ class Book extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * @param string $delimiter
+     * @return string
+     */
+    public function getAuthorsString($delimiter = ', ')
+    {
+        return join(
+            $delimiter,
+            ArrayHelper::getColumn($this->authors, 'name')
+        );
     }
 }

@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\AuthorToBook;
 use Yii;
 use app\models\Book;
 use app\models\BookSearch;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -69,7 +71,13 @@ class BooksController extends Controller
         $model->load(Yii::$app->request->post());
         $model->user_id = Yii::$app->user->identity->id;
 
-        if ($model->save()) {
+        if (Yii::$app->request->isPost && $model->save()) {
+            foreach ($model->author_id as $id) {
+                $relation = new AuthorToBook();
+                $relation->author_id = $id;
+                $relation->book_id = $model->id;
+                $relation->save();
+            }
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -88,11 +96,21 @@ class BooksController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model->author_id = ArrayHelper::getColumn($model->authors, 'id');
 
         $model->load(Yii::$app->request->post());
         $model->user_id = Yii::$app->user->identity->id;
 
-        if ($model->save()) {
+        if (Yii::$app->request->isPost && $model->save()) {
+            if ($model->author_id) {
+                AuthorToBook::deleteAll(['book_id' => $id]);
+            }
+            foreach ($model->author_id as $id) {
+                $relation = new AuthorToBook();
+                $relation->author_id = $id;
+                $relation->book_id = $model->id;
+                $relation->save();
+            }
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

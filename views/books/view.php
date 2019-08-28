@@ -1,5 +1,7 @@
 <?php
 
+use app\models\Book;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -32,7 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             'description:ntext',
-            'user_id',
+            [
+                'attribute' => 'author_id',
+                'value' => function (Book $model) {
+                    return Html::encode($model->getAuthorsString());
+                }
+            ],
             'genre',
             'tag',
         ],
