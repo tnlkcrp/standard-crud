@@ -61,6 +61,9 @@ class BookSearch extends Book
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => ['attributes' => ['genre', 'name', 'title']],
+            'pagination' => [
+                'defaultPageSize' => \Yii::$app->params['pageSize'],
+            ],
         ]);
 
         $this->load($params);
