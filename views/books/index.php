@@ -1,8 +1,13 @@
 <?php
 
+use app\models\Book;
+use app\models\User;
+use kartik\select2\Select2;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\BookSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -27,14 +32,30 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
             'title',
             'description:ntext',
             [
                 'attribute' => 'user_id',
-                'value' => function (\app\models\Book $book) {
+                'value' => function (Book $book) {
                     return Html::encode($book->user->username);
-                }
+                },
+                'filter' => Select2::widget([
+                    'name' => 'user_id',
+                    'data' => ArrayHelper::map(
+                        User::find()->asArray()->all(),
+                        'id',
+                        'username'
+                    ),
+                    'value' => $searchModel->user_id,
+                    'options' => [
+                        'class' => 'form-control',
+                        'placeholder' => 'Created by'
+                    ],
+                    'pluginOptions' => [
+                        'allowClear' => true,
+                        'selectOnClose' => true,
+                    ]
+                ])
             ],
             'genre',
             //'tag',
