@@ -66,7 +66,10 @@ class BooksController extends Controller
     {
         $model = new Book();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $model->load(Yii::$app->request->post());
+        $model->user_id = Yii::$app->user->identity->id;
+
+        if ($model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -86,7 +89,10 @@ class BooksController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $model->load(Yii::$app->request->post());
+        $model->user_id = Yii::$app->user->identity->id;
+
+        if ($model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

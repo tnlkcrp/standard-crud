@@ -30,7 +30,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             'description:ntext',
-            'user_id',
+            [
+                'attribute' => 'user_id',
+                'value' => function (\app\models\Book $book) {
+                    return Html::encode($book->user->username);
+                }
+            ],
             'genre',
             //'tag',
 
