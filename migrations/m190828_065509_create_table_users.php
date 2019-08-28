@@ -21,7 +21,7 @@ class m190828_065509_create_table_users extends Migration
             'auth_key' => $this->string(32)->notNull(),
             'password_hash' => $this->string()->notNull(),
             'password_reset_token' => $this->string()->unique(),
-        ]);
+        ], 'CHARACTER SET utf8 COLLATE utf8_general_ci');
     }
 
     /**

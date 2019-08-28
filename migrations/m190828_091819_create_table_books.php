@@ -21,7 +21,7 @@ class m190828_091819_create_table_books extends Migration
             'user_id' => $this->integer(),
             'genre' => $this->string()->notNull(),
             'tag' => $this->string(),
-        ]);
+        ], 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 
         $this->addForeignKey(
             'fk_user_id',

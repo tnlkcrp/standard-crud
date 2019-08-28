@@ -17,7 +17,7 @@ class m190828_091121_create_table_authors extends Migration
         $this->createTable(self::TABLE_NAME, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull()->unique(),
-        ]);
+        ], 'CHARACTER SET utf8 COLLATE utf8_general_ci');
     }
 
     /**
