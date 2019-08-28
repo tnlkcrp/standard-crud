@@ -25,7 +25,6 @@ $this->params['breadcrumbs'][] = $this->title;
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -34,18 +33,18 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
             'title',
             [
-                'attribute' => 'author_id',
+                'attribute' => 'name',
                 'value' => function (Book $book) {
                     return Html::encode($book->getAuthorsString());
                 },
                 'filter' => Select2::widget([
-                    'name' => 'author_id',
+                    'name' => 'name',
                     'data' => ArrayHelper::map(
                         Author::find()->asArray()->all(),
-                        'id',
+                        'name',
                         'name'
                     ),
-                    'value' => $searchModel->author_id,
+                    'value' => $searchModel->name,
                     'options' => [
                         'class' => 'form-control',
                         'placeholder' => 'Author',

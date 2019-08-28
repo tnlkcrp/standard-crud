@@ -4,13 +4,18 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Book;
 
 /**
  * BookSearch represents the model behind the search form of `app\models\Book`.
  */
 class BookSearch extends Book
 {
+    /**
+     * Author name - for sorting purposes, equals to column name
+     * @var string
+     */
+    public $name;
+
     /**
      * {@inheritdoc}
      */
@@ -25,6 +30,7 @@ class BookSearch extends Book
                     'genre',
                     'tag',
                     'author_id',
+                    'name',
                 ],
                 'safe'
             ],
@@ -49,13 +55,12 @@ class BookSearch extends Book
      */
     public function search($params)
     {
-        $query = Book::find()
-            ->alias('b');
-
-        // add conditions that should always apply here
+        $query = Book::find()->distinct();
+        $query->joinWith('authors', true);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => ['attributes' => ['genre', 'name', 'title']],
         ]);
 
         $this->load($params);
@@ -69,22 +74,18 @@ class BookSearch extends Book
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'b.id' => $this->id,
-            'b.user_id' => $this->user_id,
+            'id' => $this->id,
+            'user_id' => $this->user_id,
         ]);
 
-        if (!empty($this->author_id)) {
-            $query->innerJoin(['atb' => AuthorToBook::tableName()], [
-                'AND',
-                'b.id = atb.book_id',
-                ['atb.author_id' => $this->author_id],
-            ]);
+        if (!empty($this->name)) {
+            $query->andFilterWhere(['name' => $this->name]);
         }
 
-        $query->andFilterWhere(['like', 'b.title', $this->title])
-            ->andFilterWhere(['like', 'b.description', $this->description])
-            ->andFilterWhere(['like', 'b.genre', $this->genre])
-            ->andFilterWhere(['like', 'b.tag', $this->tag]);
+        $query->andFilterWhere(['like', 'title', $this->title])
+            ->andFilterWhere(['like', 'description', $this->description])
+            ->andFilterWhere(['like', 'genre', $this->genre])
+            ->andFilterWhere(['like', 'tag', $this->tag]);
 
         return $dataProvider;
     }
